@@ -10,65 +10,107 @@ class Quiz extends StatefulWidget {
 
 class _QuizState extends State<Quiz> {
   int currentQuestionIndex = 0; // Índice da pergunta atual
+  String? selectedAnswer;
+  bool? isCorrect;
   final List<Map<String, dynamic>> questions = [
-    {
-      'question': 'Primeira Pergunta',
-      'answers': ['Resposta 1', 'Resposta 2', 'Resposta 3', 'Resposta 4'],
-    },
+      {
+        'question':
+           'Qual destes animais é conhecido por ser o maior predador dos oceanos?',
+        'answers': ['Leão do Mar', 'Polvo', 'Tubarão', 'Baleia'],
+        'correctAnswer': 'Tubarão'
+
+      },
+      {
+        'question':
+           'Qual animal marinho é famoso por sua carapaça dura e longa vida?',
+        'answers': [
+          'Baleia Azul',
+          'Caranguejo',
+          'Tartaruga Marinha',
+          'Estrela do Mar'
+          ],
+        'correctAnswer': 'Tartaruga Marinha'
+      },
+
     // Adicione mais perguntas aqui
-  ];
-  void nextQuestion() {
-    if (currentQuestionIndex < questions.length - 1) {
-      setState(() {
-        currentQuestionIndex++;
-      });
-    } else {
-      // Fim do quiz, fazer algo aqui
-    }
-  }
+    ];
+    void nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1){
+        setState(() {
+          currentQuestionIndex++;
+        });
+         }else {
+          //Fim do Quiz, fazer algo aqui
+         } 
+      }
+      void handleAnswer(String answer) {
+        setState(() {
+          selectedAnswer = answer;
+          isCorrect = answer == questions[currentQuestionIndex]['correctAnswer'];
+        });
 
-  void handleAnswer() {
-    Future.delayed(Duration(seconds: 1), () {
-      nextQuestion();
-    });
-  }
-
+        Future.delayed(Duration(seconds: 2), (){
+          setState(() {
+            //Resetar para o próximo estado da pergunta
+            selectedAnswer = null;
+            if (currentQuestionIndex < questions.length - 1) {
+              currentQuestionIndex++;
+            } else {
+              //Fim do quiz
+            }
+            });
+          });
+      }
   @override
   Widget build(BuildContext context) {
-    var currentQuestion = questions[currentQuestionIndex];
+    var currentQuestion = questions [currentQuestionIndex];
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.deepPurple[50],
-          title: Text('Quiz marítimo!',
-              style: GoogleFonts.roboto(fontWeight: FontWeight.bold))),
-      body: Column(
-        children: [
-          Container(
-            color: Colors.deepPurple[50],
-            width: double.infinity,
-            height: 400,
-            child: Center(
-              child: Text (currentQuestion ['Question'],
-              style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 18), ),
-            )
+      appBar: AppBar (
+        backgroundColor: Colors.deepPurple[50],
+        title: Text('Quiz Marítimo!', style: GoogleFonts.roboto(fontWeight: FontWeight.bold))
+        ),
+        body: Column(
+          children: [
+            Container(
+              color: Colors.deepPurple[50],
+              width: double.infinity,
+              height: 400,
+              child: Center(
+                child:Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text (currentQuestion ['question'],
+                  style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 18), ),
+                ),
+                ),
+            ),
+            Wrap(
+              children: currentQuestion ['answers'].map<Widget>((resposta) {
+             bool isSelected = selectedAnswer == resposta;
+             Color? buttonColor;
+             if(isSelected) {
+              buttonColor = isCorrect! ? Colors.green : Colors.red;
+             } 
+
+              return meuBtn(
+                resposta, () => handleAnswer (resposta), buttonColor);
+              }).toList(),
+              ),
+            ],
           ),
-          Wrap(
-            children: currentQuestion ['answers']
-            .map<Widget>((resposta) => meuBtn(resposta, handleAnswer))
-            .toList(),
-          ),
-        ],
-      ),
-    );
-  }
+        );
+     }
 }
 
-Widget meuBtn(String resposta, VoidCallback onPressed, Color? color) =>
- Container(
-      margin: const EdgeInsets.all(16),
-      width: 160,
-      child: ElevatedButton(
-        onPressed: () {},
-        child: Text(resposta),
-      ),
+    Widget meuBtn(String resposta, VoidCallback onPressed, Color? color) => 
+    Container(
+        margin: const EdgeInsets.all(16),
+        width: 160,
+        child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: color,
+            ),
+            child: Text(resposta),
+        ),
     );
+
